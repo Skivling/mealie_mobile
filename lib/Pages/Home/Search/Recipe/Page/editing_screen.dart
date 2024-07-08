@@ -157,6 +157,7 @@ class _EditingScreen extends StatelessWidget {
               recipe: recipe,
               recipeCubit: recipeCubit,
             ),
+            // need to add 'new ingredient' button
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -171,6 +172,7 @@ class _EditingScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             _ReorderableInstructions(recipe: recipe, recipeCubit: recipeCubit),
+            // need to add 'new step' button
           ],
         );
       },
@@ -178,6 +180,9 @@ class _EditingScreen extends StatelessWidget {
   }
 }
 
+// List of all ingredients. Their text fields can be edited, there is a delete button 
+//  and they can be reordered easily
+// There is a 3 dot button which expands to show the 'Toggle Section' button 
 class _ReorderableIngredients extends StatelessWidget {
   const _ReorderableIngredients({
     required this.recipe,
@@ -309,6 +314,9 @@ class _ReorderableIngredients extends StatelessWidget {
   }
 }
 
+// List of all instruction steps. Their text fields can be edited (+ markdown!), 
+//  there is a delete button and they can be reordered easily
+// There is a 3 dot button which expands to show the 'Toggle Section' button 
 class _ReorderableInstructions extends StatelessWidget {
   const _ReorderableInstructions({
     required this.recipe,
