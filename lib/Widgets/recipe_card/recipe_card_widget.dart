@@ -9,6 +9,15 @@ import 'package:mealie_mobile/app/app_bloc.dart';
 import 'package:mealie_mobile/colors.dart';
 import 'package:mealie_repository/mealie_repository.dart';
 
+
+// RecipeCard(s) are on the menu screens when there is a list of recipes
+// includes: 
+//    Image (or Mealie logo if there isn't one)
+//    Recipe Title
+//    Favorite button
+//    Star rating (not a button)
+//    Three dot menu (not functional yet)
+
 class RecipeCard extends StatelessWidget {
   const RecipeCard({
     super.key,
