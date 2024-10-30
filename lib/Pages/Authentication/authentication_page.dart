@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:mealie_mobile/Pages/Authentication/authentication_cubit.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
-import 'package:mealie_mobile/colors.dart';
+import 'package:maize/Pages/Authentication/authentication_cubit.dart';
+import 'package:maize/app/app_bloc.dart';
+import 'package:maize/colors.dart';
 
 class AuthenticationPage extends StatelessWidget {
-  const AuthenticationPage({Key? key}) : super(key: key);
+  const AuthenticationPage({super.key});
 
   static Page page() => const MaterialPage<void>(child: AuthenticationPage());
 
@@ -107,10 +107,9 @@ class _MealieLogo extends StatelessWidget {
 
 class _CardBody extends StatelessWidget {
   const _CardBody({
-    Key? key,
     required this.passwordTFController,
     required this.usernameTFController,
-  }) : super(key: key);
+  });
 
   final TextEditingController usernameTFController;
   final TextEditingController passwordTFController;
@@ -145,11 +144,10 @@ class _CardBody extends StatelessWidget {
 
 class _EnterEmailAndPassword extends StatelessWidget {
   const _EnterEmailAndPassword({
-    Key? key,
     required this.showPassword,
     required this.usernameTFController,
     required this.passwordTFController,
-  }) : super(key: key);
+  });
 
   final bool showPassword;
   final TextEditingController usernameTFController;

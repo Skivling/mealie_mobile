@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/ShoppingList/shopping_list_page.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/shopping_lists_cubit.dart';
-import 'package:mealie_mobile/Pages/Home/Page/home_cubit.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
-import 'package:mealie_mobile/colors.dart';
+import 'package:maize/Pages/Home/ShoppingLists/ShoppingList/shopping_list_page.dart';
+import 'package:maize/Pages/Home/ShoppingLists/shopping_lists_cubit.dart';
+import 'package:maize/Pages/Home/Page/home_cubit.dart';
+import 'package:maize/app/app_bloc.dart';
+import 'package:maize/colors.dart';
 import 'package:mealie_repository/mealie_repository.dart';
 
 class ShoppingListsPage extends StatelessWidget {
@@ -15,8 +15,8 @@ class ShoppingListsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AppBloc, AppState>(builder: (context, state) {
       return BlocProvider(
-        create: (_) => ShoppingListsCubit(appBloc: context.read<AppBloc>()),
-        child: BlocBuilder<ShoppingListsCubit, ShoppingListsState>(
+        create: (_) => RecipeCubit(appBloc: context.read<AppBloc>()),
+        child: BlocBuilder<RecipeCubit, ShoppingListsState>(
           builder: (context, state) {
             switch (state.status) {
               case ShoppingListsStatus.loaded:
@@ -85,7 +85,7 @@ class _LoadedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<ShoppingList> shoppingLists =
-        context.read<ShoppingListsCubit>().state.shoppingLists ?? [];
+        context.read<RecipeCubit>().state.shoppingLists ?? [];
     return Padding(
       padding: const EdgeInsets.only(left: 16.0, right: 16, top: 24),
       child: Column(
@@ -109,8 +109,7 @@ class _LoadedScreen extends StatelessWidget {
                   color: MealieColors.green,
                   borderRadius: BorderRadius.all(Radius.circular(8))),
               child: InkWell(
-                onTap: () =>
-                    context.read<ShoppingListsCubit>().createOverlay(context),
+                onTap: () => context.read<RecipeCubit>().createOverlay(context),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -149,7 +148,7 @@ class _LoadedScreen extends StatelessWidget {
                         action: SnackBarAction(
                           label: "Yes",
                           onPressed: () => context
-                              .read<ShoppingListsCubit>()
+                              .read<RecipeCubit>()
                               .deleteShoppingList(shoppingList.id),
                         ),
                       );

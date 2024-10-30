@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mealie_mobile/Pages/Home/Search/search_page.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
+import 'package:maize/Pages/Home/Search/search_page.dart';
+import 'package:maize/app/app_bloc.dart';
 
 part 'home_state.dart';
 
@@ -22,12 +22,12 @@ class HomeCubit extends Cubit<HomeState> {
     appBloc.repo.errorStream.stream.listen((message) {
       emit(state.copyWith(
         status: HomeStatus.error,
-        errorMessage: message.toString(),
+        errorMessage: message,
       ));
     });
   }
 
-  void setScreen(Widget screen) {
-    emit(state.copyWith(status: state.status, onScreen: screen));
+  void setScreen(Widget screen, {HomeStatus? status}) {
+    emit(state.copyWith(status: status ?? state.status, onScreen: screen));
   }
 }

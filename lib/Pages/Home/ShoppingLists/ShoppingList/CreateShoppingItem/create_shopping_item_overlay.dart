@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/ShoppingList/CreateShoppingItem/create_shopping_item_cubit.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/ShoppingList/shopping_list_cubit.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/ShoppingList/shopping_list_page.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
+import 'package:maize/Pages/Home/ShoppingLists/ShoppingList/CreateShoppingItem/create_shopping_item_cubit.dart';
+import 'package:maize/Pages/Home/ShoppingLists/ShoppingList/shopping_list_cubit.dart';
+import 'package:maize/Pages/Home/ShoppingLists/ShoppingList/shopping_list_page.dart';
+import 'package:maize/app/app_bloc.dart';
 import 'package:mealie_repository/mealie_repository.dart';
 
 class CreateShoppingItemOverlay extends OverlayEntry {
@@ -16,30 +16,33 @@ class CreateShoppingItemOverlay extends OverlayEntry {
                 TextEditingController();
             final TextEditingController quantityTFController =
                 TextEditingController();
-            return Material(
-              color: Colors.black.withOpacity(0.2),
-              child: BlocProvider(
-                create: (_) => CreateShoppingItemCubit(
-                  appBloc: context.read<AppBloc>(),
-                ),
-                child: BlocBuilder<CreateShoppingItemCubit,
-                    CreateShoppingItemState>(
-                  builder: (context, state) {
-                    switch (state.status) {
-                      case CreateShoppingItemStatus.ready:
-                        return _LoadedScreen(
-                          createShoppingListCubit:
-                              context.read<CreateShoppingItemCubit>(),
-                          shoppingList: shoppingList,
-                          shoppingListCubit: shoppingListCubit,
-                          noteTFController: noteTFController,
-                          quantityTFController: quantityTFController,
-                        );
-                      default:
-                        return _ErrorScreen(
-                            cubit: context.read<CreateShoppingItemCubit>());
-                    }
-                  },
+            return Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Material(
+                color: Colors.black.withOpacity(0.2),
+                child: BlocProvider(
+                  create: (_) => CreateShoppingItemCubit(
+                    appBloc: context.read<AppBloc>(),
+                  ),
+                  child: BlocBuilder<CreateShoppingItemCubit,
+                      CreateShoppingItemState>(
+                    builder: (context, state) {
+                      switch (state.status) {
+                        case CreateShoppingItemStatus.ready:
+                          return _LoadedScreen(
+                            createShoppingListCubit:
+                                context.read<CreateShoppingItemCubit>(),
+                            shoppingList: shoppingList,
+                            shoppingListCubit: shoppingListCubit,
+                            noteTFController: noteTFController,
+                            quantityTFController: quantityTFController,
+                          );
+                        default:
+                          return _ErrorScreen(
+                              cubit: context.read<CreateShoppingItemCubit>());
+                      }
+                    },
+                  ),
                 ),
               ),
             );

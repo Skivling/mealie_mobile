@@ -1,57 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:mealie_mobile/Pages/Home/Categories/categories_page.dart';
-import 'package:mealie_mobile/Pages/Home/FavoriteRecipes/favorite_recipes_page.dart';
-import 'package:mealie_mobile/Pages/Home/MealPlanner/meal_planner_page.dart';
-import 'package:mealie_mobile/Pages/Home/Page/Drawer/CreateButtonDropdown/create_button_dropdown.dart';
-import 'package:mealie_mobile/Pages/Home/Page/Drawer/drawer_cubit.dart';
-import 'package:mealie_mobile/Pages/Home/Search/search_page.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/shopping_lists_page.dart';
-import 'package:mealie_mobile/Pages/Home/Tags/tags_page.dart';
-import 'package:mealie_mobile/Pages/Home/Timeline/timeline_page.dart';
-import 'package:mealie_mobile/Pages/Home/Tools/tools_page.dart';
-import 'package:mealie_mobile/Pages/Home/Page/home_cubit.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
-import 'package:mealie_mobile/colors.dart';
+import 'package:maize/Pages/Home/Categories/categories_page.dart';
+import 'package:maize/Pages/Home/FavoriteRecipes/favorite_recipes_page.dart';
+import 'package:maize/Pages/Home/MealPlanner/meal_planner_page.dart';
+import 'package:maize/Pages/Home/Page/Drawer/CreateButtonDropdown/create_button_dropdown.dart';
+import 'package:maize/Pages/Home/Page/Drawer/drawer_cubit.dart';
+import 'package:maize/Pages/Home/Search/search_page.dart';
+import 'package:maize/Pages/Home/ShoppingLists/shopping_lists_page.dart';
+import 'package:maize/Pages/Home/Tags/tags_page.dart';
+import 'package:maize/Pages/Home/Timeline/timeline_page.dart';
+import 'package:maize/Pages/Home/Tools/tools_page.dart';
+import 'package:maize/Pages/Home/Page/home_cubit.dart';
+import 'package:maize/app/app_bloc.dart';
+import 'package:maize/colors.dart';
 
 part 'Drawer/drawer_widget.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   static Page page() => const MaterialPage<void>(child: HomePage());
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppBloc, AppState>(builder: (context, snapshot) {
-      return BlocProvider(
-        create: (_) =>
-            HomeCubit(appBloc: context.read<AppBloc>(), context: context),
-        child: BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
-          switch (state.status) {
-            case HomeStatus.error:
-              return _ErrorScreen(state: state);
-            case HomeStatus.ready:
-            case HomeStatus.loading:
-            default:
-              return Scaffold(
-                resizeToAvoidBottomInset: false,
-                appBar: _AppBar(
-                  appBloc: context.read<AppBloc>(),
-                  homeCubit: context.read<HomeCubit>(),
-                ),
-                drawer: _Drawer(
-                  appBloc: context.read<AppBloc>(),
-                  homeCubit: context.read<HomeCubit>(),
-                  context: context,
-                ),
-                body: state.onScreen,
-              );
-          }
-        }),
-      );
-    });
+    return Scaffold(
+      body: BlocBuilder<AppBloc, AppState>(builder: (context, snapshot) {
+        return BlocProvider(
+          create: (_) =>
+              HomeCubit(appBloc: context.read<AppBloc>(), context: context),
+          child: BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
+            switch (state.status) {
+              case HomeStatus.error:
+                return _ErrorScreen(state: state);
+              case HomeStatus.ready:
+              case HomeStatus.loading:
+              default:
+                return Scaffold(
+                  resizeToAvoidBottomInset: false,
+                  appBar: _AppBar(
+                    appBloc: context.read<AppBloc>(),
+                    homeCubit: context.read<HomeCubit>(),
+                  ),
+                  drawer: _Drawer(
+                    appBloc: context.read<AppBloc>(),
+                    homeCubit: context.read<HomeCubit>(),
+                    context: context,
+                  ),
+                  body: state.onScreen,
+                );
+            }
+          }),
+        );
+      }),
+    );
   }
 }
 
@@ -106,16 +108,40 @@ class _ErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            "Error",
-            style: TextStyle(fontSize: 25),
-          ),
-          const SizedBox(height: 15),
-          Text(state.errorMessage.toString())
-        ],
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Error",
+              style: TextStyle(fontSize: 25),
+            ),
+            const SizedBox(height: 15),
+            Text(state.errorMessage ?? "An un-specified error was encountered"),
+            const SizedBox(height: 15),
+            SizedBox(
+              width: 160,
+              child: TextButton(
+                onPressed: () => context
+                    .read<HomeCubit>()
+                    .setScreen(SearchPage(), status: HomeStatus.ready),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                      color: MealieColors.orange,
+                      borderRadius: BorderRadius.all(Radius.circular(25))),
+                  child: const Center(
+                    child: Text(
+                      "Go Home",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

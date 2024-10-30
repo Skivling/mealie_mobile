@@ -121,7 +121,9 @@ class _LoadedScreen extends StatelessWidget {
                 spacing: 0,
                 setRating: recipeCubit.setRating,
               ),
-              Text("Average Rating: ${recipe.rating}"),
+              (recipe.rating != null)
+                  ? Text("Average Rating: ${recipe.rating}")
+                  : Container(),
             ],
           ),
           const SizedBox(height: 10),
@@ -161,9 +163,17 @@ class _LoadedScreen extends StatelessWidget {
                     color: Colors.black.withOpacity(0.7),
                   ),
                 ),
-                IconButton(
-                    onPressed: () => recipeCubit.copyIngredientsToClipboard(),
-                    icon: const Icon(Icons.copy))
+                Row(
+                  children: [
+                    IconButton(
+                        onPressed: () => recipeCubit.createOverlay(context),
+                        icon: const Icon(Icons.add_shopping_cart)),
+                    IconButton(
+                        onPressed: () =>
+                            recipeCubit.copyIngredientsToClipboard(),
+                        icon: const Icon(Icons.copy)),
+                  ],
+                )
               ],
             ),
           ),
@@ -299,54 +309,176 @@ class _LoadedScreen extends StatelessWidget {
               },
             ),
           ),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Tags",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+          recipe.tags != null && recipe.tags!.isNotEmpty
+              ? _TagsCard(recipeCubit: recipeCubit)
+              : Container(),
+          const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16), child: Divider()),
+          recipe.nutrition != null && recipe.settings?.showNutrition == true
+              ? Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Nutrition"),
+                        const Divider(),
+                        _NutritionInformationText(
+                          nutritionId: "Calories",
+                          quantity: recipe.nutrition!.calories ?? "",
+                          unit: "calories",
+                        ),
+                        _NutritionInformationText(
+                          nutritionId: "Fat",
+                          quantity: recipe.nutrition!.fatContent ?? "",
+                          unit: "grams",
+                        ),
+                        _NutritionInformationText(
+                          nutritionId: "Fiber",
+                          quantity: recipe.nutrition!.fiberContent ?? "",
+                          unit: "grams",
+                        ),
+                        _NutritionInformationText(
+                          nutritionId: "Protein",
+                          quantity: recipe.nutrition!.proteinContent ?? "",
+                          unit: "grams",
+                        ),
+                        _NutritionInformationText(
+                          nutritionId: "Sodium",
+                          quantity: recipe.nutrition!.sodiumContent ?? "",
+                          unit: "milligrams",
+                        ),
+                        _NutritionInformationText(
+                          nutritionId: "Sugar",
+                          quantity: recipe.nutrition!.sugarContent ?? "",
+                          unit: "grams",
+                        ),
+                        _NutritionInformationText(
+                          nutritionId: "Carbohydrate",
+                          quantity: recipe.nutrition!.carbohydrateContent ?? "",
+                          unit: "grams",
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Container(height: 1, color: Colors.black.withOpacity(0.5)),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.75,
+                )
+              : Container(),
+          recipe.orgURL != null
+              ? Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     height: 35,
-                    child: ListView.builder(
-                      physics: const ClampingScrollPhysics(),
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: recipeCubit.state.recipe?.tags?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: const BoxDecoration(
-                            color: MealieColors.darkBlue,
-                            borderRadius: BorderRadius.all(Radius.circular(4)),
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: Center(
-                            child: Text(
-                              recipeCubit.state.recipe?.tags?[index].name ?? "",
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        );
-                      },
+                    padding: const EdgeInsets.all(0),
+                    decoration: const BoxDecoration(
+                      color: MealieColors.darkRed,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
-                  )
-                ],
+                    child: TextButton(
+                      onPressed: () async {
+                        await launchUrl(Uri.parse(recipe.orgURL!));
+                      },
+                      child: const Text(
+                        "Original URL",
+                        style: TextStyle(color: Colors.white, fontSize: 11),
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
+        ],
+      ),
+    );
+  }
+}
+
+class _NutritionInformationText extends StatelessWidget {
+  const _NutritionInformationText({
+    required this.nutritionId,
+    required this.quantity,
+    required this.unit,
+  });
+
+  final String nutritionId;
+  final String quantity;
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          nutritionId,
+          style: const TextStyle(fontSize: 12),
+        ),
+        Text(
+          "$quantity $unit",
+          style: const TextStyle(fontSize: 12),
+        )
+      ],
+    );
+  }
+}
+
+class _TagsCard extends StatelessWidget {
+  const _TagsCard({
+    required this.recipeCubit,
+  });
+
+  final RecipeCubit recipeCubit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Tags",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Container(height: 1, color: Colors.black.withOpacity(0.5)),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.75,
+              height: 35,
+              child: ListView.builder(
+                physics: const ClampingScrollPhysics(),
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemCount: recipeCubit.state.recipe?.tags?.length ?? 0,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: const BoxDecoration(
+                      color: MealieColors.darkBlue,
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: Center(
+                      child: Text(
+                        recipeCubit.state.recipe?.tags?[index].name ?? "",
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

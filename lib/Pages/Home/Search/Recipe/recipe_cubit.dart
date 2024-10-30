@@ -1,9 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mealie_mobile/Pages/Home/Page/home_cubit.dart';
-import 'package:mealie_mobile/Pages/Home/Search/search_page.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
+import 'package:maize/Pages/Home/Page/home_cubit.dart';
+import 'package:maize/Pages/Home/Search/Recipe/Page/AddToListOverlay/add_to_list_overlay.dart';
+import 'package:maize/Pages/Home/Search/search_page.dart';
+import 'package:maize/app/app_bloc.dart';
 import 'package:mealie_repository/mealie_repository.dart';
 
 part 'recipe_state.dart';
@@ -47,9 +49,9 @@ class RecipeCubit extends Cubit<RecipeState> {
         throw Exception("An unknown error occuried while getting recipes");
       }
 
-      Rating rating = ratings
+      Rating? rating = ratings
           .where((element) => element.recipeId == state.recipe!.id)
-          .first;
+          .firstOrNull;
 
       emit(state.copyWith(
         userRating: rating,
@@ -331,5 +333,17 @@ class RecipeCubit extends Cubit<RecipeState> {
     await getRecipe();
     await getRatings();
     emit(state.copyWith(status: RecipeStatus.loaded));
+  }
+
+  void createOverlay(BuildContext context) {
+    OverlayEntry overlayEntry = AddToListOverlay(recipeCubit: this);
+    Overlay.of(context).insert(overlayEntry);
+
+    emit(state.copyWith(status: state.status, overlayEntry: overlayEntry));
+  }
+
+  void removeOverlay() {
+    state.overlayEntry!.remove();
+    emit(state.copyWith(status: state.status, overlayEntry: null));
   }
 }

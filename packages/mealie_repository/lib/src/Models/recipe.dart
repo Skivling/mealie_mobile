@@ -3,35 +3,55 @@ part of '../mealie_repository.dart';
 class RecipeReference extends Equatable {
   RecipeReference({
     required this.id,
-    required this.shoppingListId,
+    this.shoppingListItemId,
     required this.recipeId,
     required this.recipeQuantity,
-    required this.recipe,
+    this.recipeScale,
+    this.recipeNote,
+    this.recipe,
   });
 
   final String id;
-  final String shoppingListId;
+  final String? shoppingListItemId;
   final String recipeId;
   final double recipeQuantity;
-  final Recipe recipe;
+  final double? recipeScale;
+  final String? recipeNote;
+  final Recipe? recipe;
 
   static RecipeReference? fromData({Map<String, dynamic>? data}) {
     if (data == null) return null;
     return RecipeReference(
-      id: data['id'],
-      shoppingListId: data['shoppingListId'],
-      recipeId: data['recipeId'],
-      recipeQuantity: data['recipeQuantity'],
-      recipe: data['recipe'],
-    );
+        id: data['id'],
+        shoppingListItemId: data['shoppingListItemId'],
+        recipeId: data['recipeId'],
+        recipeQuantity: data['recipeQuantity'],
+        recipeScale: data['recipeScale'],
+        recipeNote: data['recipeNote'],
+        recipe: Recipe.fromData(data: data['recipe']));
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['id'] = this.id;
+    if (this.shoppingListItemId != null)
+      json['shoppingListItemId'] = this.shoppingListItemId;
+    json['recipeId'] = this.recipeId;
+    json['recipeQuantity'] = this.recipeQuantity;
+    if (this.recipeScale != null) json['recipeScale'] = this.recipeScale;
+    if (this.recipeNote != null) json['recipeNote'] = this.recipeNote;
+    if (this.recipe != null) json['recipe'] = this.recipe!.toJson();
+    return json;
   }
 
   @override
   List<Object?> get props => [
         id,
-        shoppingListId,
+        shoppingListItemId,
         recipeId,
         recipeQuantity,
+        recipeScale,
+        recipeNote,
         recipe,
       ];
 }
@@ -105,7 +125,8 @@ class Recipe extends Equatable {
   final bool? isOcrRecipe;
   final List<Comment>? comments;
 
-  static Recipe fromData({required Map<String, dynamic> data}) {
+  static Recipe? fromData({required Map<String, dynamic>? data}) {
+    if (data == null) return null;
     final List<RecipeCategory> recipeCategory = List<RecipeCategory>.from(
         data['recipeCategory']?.map((dynamic category) =>
                 RecipeCategory.fromData(data: category)) ??

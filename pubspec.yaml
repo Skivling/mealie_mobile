@@ -1,5 +1,6 @@
-name: mealie_mobile
-description: A new Flutter project.
+name: maize
+description: "A mobile application for interfacing with the self-hosted recipe
+  manager: Mealie"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -16,10 +17,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 0.0.2+1
 
 environment:
-  sdk: ">=3.1.0 <4.0.0"
+  sdk: ">=3.4.1 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,26 +35,35 @@ dependencies:
   cupertino_icons: ^1.0.2
   dropdown_button2: ^2.3.9
   equatable: ^2.0.5
-  flow_builder: ^0.0.9
+  flow_builder: ^0.1.0
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.3
+  flutter_keyboard_visibility: ^6.0.0
   flutter_svg: ^2.0.7
   font_awesome_flutter: ^10.5.0
   infinite_scroll_pagination: ^4.0.0
   mealie_repository:
     path: packages/mealie_repository
   shared_preferences: ^2.2.1
+  url_launcher: ^6.3.0
 
+# dependency_overrides:
+#   leak_tracker: ^10.0.5
+#   leak_tracker_flutter_testing: ^3.0.5
+#   material_color_utilities: ^0.11.1
+#   meta: ^1.15.0
+#   test_api: ^0.7.1
+#   vm_service: ^14.2.2
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
-  flutter_lints: ^2.0.0
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
 
 flutter_launcher_icons:
   ios: true
-  image_path: "assets/icon/app_icon.png"
+  image_path: "assets/maize_logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

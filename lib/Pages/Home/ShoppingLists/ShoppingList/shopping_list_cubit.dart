@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/ShoppingList/CreateShoppingItem/create_shopping_item_overlay.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:maize/Pages/Home/ShoppingLists/ShoppingList/CreateShoppingItem/create_shopping_item_overlay.dart';
+import 'package:maize/app/app_bloc.dart';
 import 'package:mealie_repository/mealie_repository.dart';
 
 part 'shopping_list_state.dart';
@@ -10,23 +13,31 @@ part 'shopping_list_state.dart';
 class ShoppingListCubit extends Cubit<ShoppingListState> {
   ShoppingListCubit({required this.appBloc, required ShoppingList shoppingList})
       : _shoppingList = shoppingList,
-        super(const ShoppingListState(
+        super(ShoppingListState(
           status: ShoppingListStatus.unintialized,
         )) {
-    getShoppingList();
+    _initialize();
   }
 
   final AppBloc appBloc;
   final ShoppingList _shoppingList;
 
+  Future<void> _initialize() async {
+    state.keyboardVisibilityController.onChange.listen((bool visible) {
+      safeEmit(state.copyWith(status: ShoppingListStatus.loading));
+      safeEmit(state.copyWith(status: ShoppingListStatus.loaded));
+    });
+    getShoppingList();
+  }
+
   Future<void> getShoppingList() async {
-    emit(state.copyWith(status: ShoppingListStatus.loading));
+    safeEmit(state.copyWith(status: ShoppingListStatus.loading));
 
     ShoppingList? shoppingList =
         await appBloc.repo.getOneShoppingList(list: _shoppingList);
 
     if (shoppingList == null) {
-      emit(state.copyWith(
+      safeEmit(state.copyWith(
         status: ShoppingListStatus.error,
         errorMessage:
             "An unknown error occured while getting the shopping list",
@@ -39,14 +50,15 @@ class ShoppingListCubit extends Cubit<ShoppingListState> {
         ?.sort((a, b) => a.note.toLowerCase().compareTo(b.note.toLowerCase()));
 
     shoppingList = shoppingList.copyWith(items: shoppingListItems);
-    emit(state.copyWith(
+    safeEmit(state.copyWith(
       status: ShoppingListStatus.loaded,
       shoppingList: shoppingList,
     ));
   }
 
   void toggleShowChecked() {
-    emit(state.copyWith(status: state.status, showChecked: !state.showChecked));
+    safeEmit(
+        state.copyWith(status: state.status, showChecked: !state.showChecked));
   }
 
   Future<void> checkItem(ShoppingListItem item) async {
@@ -74,7 +86,11 @@ class ShoppingListCubit extends Cubit<ShoppingListState> {
     ShoppingList shoppingList =
         state.shoppingList!.copyWith(items: shoppingListItems);
 
-    emit(state.copyWith(status: state.status, shoppingList: shoppingList));
+    safeEmit(state.copyWith(
+      status: state.status,
+      shoppingList: shoppingList,
+      currentlyEditingIndex: i,
+    ));
   }
 
   Future<void> updateItem(
@@ -96,7 +112,7 @@ class ShoppingListCubit extends Cubit<ShoppingListState> {
 
   void removeOverlay() {
     state.overlayEntry!.remove();
-    emit(state.copyWith(status: state.status, overlayEntry: null));
+    safeEmit(state.copyWith(status: state.status, overlayEntry: null));
   }
 
   void createOverlay(BuildContext context) {
@@ -104,7 +120,7 @@ class ShoppingListCubit extends Cubit<ShoppingListState> {
         shoppingList: state.shoppingList!, shoppingListCubit: this);
     Overlay.of(context).insert(overlayEntry);
 
-    emit(state.copyWith(status: state.status, overlayEntry: overlayEntry));
+    safeEmit(state.copyWith(status: state.status, overlayEntry: overlayEntry));
   }
 
   Future<void> deleteCheckedItems() async {

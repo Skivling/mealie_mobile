@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:mealie_mobile/Pages/Home/ShoppingLists/ShoppingList/shopping_list_cubit.dart';
-import 'package:mealie_mobile/Pages/Home/Page/home_cubit.dart';
-import 'package:mealie_mobile/app/app_bloc.dart';
-import 'package:mealie_mobile/colors.dart';
+import 'package:maize/Pages/Home/ShoppingLists/ShoppingList/shopping_list_cubit.dart';
+import 'package:maize/Pages/Home/Page/home_cubit.dart';
+import 'package:maize/app/app_bloc.dart';
+import 'package:maize/colors.dart';
 import 'package:mealie_repository/mealie_repository.dart';
 
 class ShoppingListPage extends StatelessWidget {
@@ -18,31 +18,33 @@ class ShoppingListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AppBloc, AppState>(builder: (context, state) {
-      return BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
-        return BlocProvider(
-          create: (_) => ShoppingListCubit(
-              appBloc: context.read<AppBloc>(), shoppingList: shoppingList),
-          child: BlocBuilder<ShoppingListCubit, ShoppingListState>(
-            builder: (context, state) {
-              switch (state.status) {
-                case ShoppingListStatus.loaded:
-                  return _LoadedScreen(
-                    shoppingListCubit: context.read<ShoppingListCubit>(),
-                    homeCubit: context.read<HomeCubit>(),
-                  );
-                case ShoppingListStatus.unintialized:
-                case ShoppingListStatus.loading:
-                  return const _LoadingScreen();
-                case ShoppingListStatus.error:
-                default:
-                  return _ErrorScreen(state: state);
-              }
-            },
-          ),
-        );
-      });
-    });
+    return Scaffold(
+      body: BlocBuilder<AppBloc, AppState>(builder: (context, state) {
+        return BlocBuilder<HomeCubit, HomeState>(builder: (context, state) {
+          return BlocProvider(
+            create: (_) => ShoppingListCubit(
+                appBloc: context.read<AppBloc>(), shoppingList: shoppingList),
+            child: BlocBuilder<ShoppingListCubit, ShoppingListState>(
+              builder: (context, state) {
+                switch (state.status) {
+                  case ShoppingListStatus.loaded:
+                    return _LoadedScreen(
+                      shoppingListCubit: context.read<ShoppingListCubit>(),
+                      homeCubit: context.read<HomeCubit>(),
+                    );
+                  case ShoppingListStatus.unintialized:
+                  case ShoppingListStatus.loading:
+                    return const _LoadingScreen();
+                  case ShoppingListStatus.error:
+                  default:
+                    return _ErrorScreen(state: state);
+                }
+              },
+            ),
+          );
+        });
+      }),
+    );
   }
 }
 
@@ -101,15 +103,15 @@ class _LoadedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ShoppingListItem> shoppingList =
+    List<ShoppingListItem> shoppingListItems =
         context.read<ShoppingListCubit>().state.shoppingList?.items ?? [];
-    List<ShoppingListItem> uncheckedItems = shoppingList
+    List<ShoppingListItem> uncheckedItems = shoppingListItems
         .map((ShoppingListItem item) {
           if (!item.checked) return item;
         })
         .whereType<ShoppingListItem>()
         .toList();
-    List<ShoppingListItem> checkedItems = shoppingList
+    List<ShoppingListItem> checkedItems = shoppingListItems
         .map((ShoppingListItem item) {
           if (item.checked) return item;
         })
@@ -121,7 +123,7 @@ class _LoadedScreen extends StatelessWidget {
         RefreshIndicator(
           onRefresh: () => shoppingListCubit.getShoppingList(),
           child: ListView(
-            shrinkWrap: true,
+            shrinkWrap: false,
             children: [
               const SizedBox(height: 20),
               SizedBox(
@@ -129,12 +131,9 @@ class _LoadedScreen extends StatelessWidget {
                 child: SvgPicture.asset('assets/empty_cart.svg'),
               ),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  height: 1,
-                  color: Colors.grey[300],
-                ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+                child: Divider(),
               ),
               const SizedBox(height: 10),
               Padding(
@@ -211,12 +210,15 @@ class _LoadedScreen extends StatelessWidget {
             ],
           ),
         ),
-        Align(
-            alignment: Alignment.bottomRight,
-            child: _BottomButtons(
-              shoppingListCubit: shoppingListCubit,
-              homeCubit: homeCubit,
-            )),
+        shoppingListCubit.state.keyboardVisibilityController.isVisible
+            ? Container()
+            : Align(
+                alignment: Alignment.bottomRight,
+                child: _BottomButtons(
+                  shoppingListCubit: shoppingListCubit,
+                  homeCubit: homeCubit,
+                ),
+              ),
       ],
     );
   }
@@ -492,49 +494,70 @@ class _ItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: SizedBox(
-        height: 40,
-        child: Stack(
-          children: [
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Checkbox(value: item.checked, onChanged: (_) => onChecked()),
-                  const SizedBox(width: 10),
-                  Text(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Stack(
+        children: [
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Checkbox(value: item.checked, onChanged: (_) => onChecked()),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 999,
+                  child: Text(
                     item.note,
                     style: const TextStyle(
                         fontWeight: FontWeight.w500, fontSize: 16),
                   ),
-                  if (item.quantity > 1) const SizedBox(width: 10),
-                  if (item.quantity > 1) Text("x${item.quantity}"),
-                  const Spacer(flex: 1),
-                  IconButton(
-                    onPressed: () => onDelete(),
-                    icon: Icon(
-                      Icons.delete,
-                      color: Colors.black.withOpacity(0.5),
-                    ),
+                ),
+                if (item.quantity > 1) const SizedBox(width: 10),
+                if (item.quantity > 1) Text("x${item.quantity}"),
+                const Spacer(flex: 1),
+                (item.recipeReferences != null &&
+                        item.recipeReferences!.isNotEmpty)
+                    ? IconButton(
+                        onPressed: () {
+                          final List<RecipeReference> recipeReferences =
+                              shoppingListCubit
+                                  .state.shoppingList!.recipeReferences;
+                          final List<String?> linkedRecipeReferenceIDs = item
+                              .recipeReferences!
+                              .map((recipeElement) => recipeElement?.recipeId)
+                              .toList();
+                          final List<RecipeReference> linkedRecipeReferences =
+                              recipeReferences
+                                  .where(
+                                    (element) => linkedRecipeReferenceIDs
+                                        .contains(element.recipeId),
+                                  )
+                                  .toList();
+                          final SnackBar snackBar = SnackBar(
+                            content: Text(
+                                'Linked to: \n- ${linkedRecipeReferences.map((element) => element.recipe?.name).join('\n- ')}'),
+                          );
+
+                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        },
+                        icon: Icon(
+                          FontAwesomeIcons.kitchenSet,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      )
+                    : Container(),
+                IconButton(
+                  onPressed: () => onDelete(),
+                  icon: Icon(
+                    Icons.delete,
+                    color: Colors.black.withOpacity(0.5),
                   ),
-                  const SizedBox(width: 10),
-                ],
-              ),
+                ),
+                const SizedBox(width: 10),
+              ],
             ),
-            item.checked
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 50.0),
-                      child: Container(
-                        height: 1,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  )
-                : Container(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
